@@ -43,7 +43,7 @@ class EKFNode:
         rospy.Subscriber('/zed2i/zed_node/imu/data', Imu, self.imu_callback)
         rospy.Subscriber('/data_logger/speed_actual', velocity, self.tone_callback)
 
-        self.pose_pub = rospy.Publisher('/ekf_node/pose', Pose2D, queue_size=1)
+        self.pose_pub = rospy.Publisher('/ekf_node/pose', PoseStamped, queue_size=1)
         self.speed_pub = rospy.Publisher('/ekf_node/speed', velocity, queue_size=1)
 
     def slam_callback(self, msg):
@@ -82,10 +82,10 @@ class EKFNode:
                     self.ekf.update_tone_wheels(self.last_tone_meas)
                     self.last_tone_processed_time = self.last_tone_meas_time
 
-                new_pose = Pose2D()
-                new_pose.x = self.ekf.x[0]
-                new_pose.y = self.ekf.x[1]
-                new_pose.theta = self.ekf.x[2]
+                new_pose = PoseStamped()
+                new_pose.pose.position.x = self.ekf.x[0]
+                new_pose.pose.position.y = self.ekf.x[1]
+                new_pose.yaw = self.ekf.x[2]
                 self.pose_pub.publish(new_pose)
                 speed_msg = velocity()
                 speed_msg.velocity = self.ekf.x[3]
