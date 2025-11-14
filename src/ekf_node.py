@@ -44,6 +44,7 @@ class EKFNode:
         rospy.Subscriber('/data_logger/speed_actual', velocity, self.tone_callback)
 
         self.pose_pub = rospy.Publisher('/ekf_node/pose', Pose2D, queue_size=1)
+        self.speed_pub = rospy.Publisher('/ekf_node/speed', velocity, queue_size=1)
 
     def slam_callback(self, msg):
         self.last_slam_meas = np.array([msg.pose.position.x, msg.pose.position.y, msg.yaw])
@@ -86,6 +87,9 @@ class EKFNode:
                 new_pose.y = self.ekf.x[1]
                 new_pose.theta = self.ekf.x[2]
                 self.pose_pub.publish(new_pose)
+                speed_msg = velocity()
+                speed_msg.velocity = self.ekf.x[3]
+                self.speed_pub.publish(speed_msg)
 
             rate.sleep()
 
