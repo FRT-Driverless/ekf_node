@@ -70,7 +70,7 @@ class EKFNode:
                 dt = 1 / 100 # TODO: da calcolare con ros magari
 
                 # Prediction step
-                self.ekf.predict(self.last_imu_meas, dt)
+                self.ekf.predict(self.last_imu_meas, self.last_tone_meas, dt)
 
                 # Update step using SLAM
                 if self.last_slam_meas_time > self.last_slam_processed_time:
@@ -78,9 +78,9 @@ class EKFNode:
                     self.last_slam_processed_time = self.last_slam_meas_time
 
                 # Update step using tone wheels
-                if self.last_tone_meas_time > self.last_tone_processed_time:
-                    self.ekf.update_tone_wheels(self.last_tone_meas)
-                    self.last_tone_processed_time = self.last_tone_meas_time
+                # if self.last_tone_meas_time > self.last_tone_processed_time:
+                #     self.ekf.update_tone_wheels(self.last_tone_meas)
+                #     self.last_tone_processed_time = self.last_tone_meas_time
 
                 new_pose = PoseStamped()
                 new_pose.pose.position.x = self.ekf.x[0]

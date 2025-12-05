@@ -45,9 +45,11 @@ class EKF:
         if P0 is not None:
             self.P = P0.copy()
 
-    def predict(self, u_meas, dt):
+    def predict(self, u_imu_meas, u_tone_meas, dt):
         px, py, th, v, b_a, b_w = self.x
-        a_m, w_m = u_meas
+        a_m, w_m = u_imu_meas
+
+        v_tone = u_tone_meas[0] # average velocity from tone wheels
 
         # bias compensation
         a = a_m - b_a
@@ -57,7 +59,7 @@ class EKF:
         px_n = px + v * np.cos(th) * dt
         py_n = py + v * np.sin(th) * dt
         th_n = wrap_angle(th + w * dt)
-        v_n = v + a * dt
+        v_n = v_tone
         b_a_n = b_a
         b_w_n = b_w
 
@@ -74,8 +76,6 @@ class EKF:
         F[1, 3] = s * dt
         # theta wrt b_w
         F[2, 5] = -dt
-        # v wrt b_a
-        F[3, 4] = -dt
         # (bias states are random walks → diag already = 1)
 
         # Covariance propagation
